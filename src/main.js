@@ -54,23 +54,22 @@ export async function getElectronModuleVersion(pathToElectronExecutable) {
   return versionAsString;
 }
 
-export async function installNodeHeaders(nodeVersion, nodeDistUrl=null, headersDir=null, arch=null) {
-  headersDir = headersDir || getHeadersRootDirForVersion(nodeVersion);
-  let distUrl = nodeDistUrl || 'https://gh-contractor-zcbenz.s3.amazonaws.com/atom-shell/dist';
+export async function installNodeHeaders(electronVersion, electronDistUrl=null, headersDir=null, arch=null) {
+  headersDir = headersDir || getHeadersRootDirForVersion(electronVersion);
+  let distUrl = electronDistUrl || 'https://atom.io/download/atom-shell';
 
   try {
-    await checkForInstalledHeaders(nodeVersion, headersDir);
+    await checkForInstalledHeaders(electronVersion, headersDir);
     return;
   } catch (e) { }
 
   let cmd = 'node';
   let args = [
     require.resolve('npm/node_modules/node-gyp/bin/node-gyp'), 'install',
-    `--target=${nodeVersion}`,
+    `--target=${electronVersion}`,
     `--arch=${arch || process.arch}`,
     `--dist-url=${distUrl}`
   ];
-
   await spawnWithHeadersDir(cmd, args, headersDir);
 }
 
@@ -102,9 +101,9 @@ export async function shouldRebuildNativeModules(pathToElectronExecutable, expli
   return true;
 }
 
-export async function rebuildNativeModules(nodeVersion, nodeModulesPath, whichModule=null, headersDir=null, arch=null, command='rebuild') {
-  headersDir = headersDir || getHeadersRootDirForVersion(nodeVersion);
-  await checkForInstalledHeaders(nodeVersion, headersDir);
+export async function rebuildNativeModules(electronVersion, electronModulesPath, whichModule=null, headersDir=null, arch=null, command='rebuild') {
+  headersDir = headersDir || getHeadersRootDirForVersion(electronVersion);
+  await checkForInstalledHeaders(electronVersion, headersDir);
 
   let cmd = 'node';
   let args = [
@@ -118,9 +117,9 @@ export async function rebuildNativeModules(nodeVersion, nodeModulesPath, whichMo
 
   args.push(
     '--runtime=electron',
-    `--target=${nodeVersion}`,
+    `--target=${electronVersion}`,
     `--arch=${arch || process.arch}`
   );
 
-  await spawnWithHeadersDir(cmd, args, headersDir, nodeModulesPath);
+  await spawnWithHeadersDir(cmd, args, headersDir, electronModulesPath);
 }
